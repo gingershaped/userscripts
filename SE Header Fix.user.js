@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SE Header Fix
 // @namespace    https://codegolf.stackexchange.com/
-// @version      0.1
+// @version      0.2
 // @description  Revert the style of the Stack Exchange header to its original form
 // @author       Ginger
 // @match        https://*.stackexchange.com/*
@@ -15,10 +15,10 @@
     if (document.location.hostname == "chat.stackexchange.com") { // Don't run on the chat site
         return
     }
-    for (let e of document.querySelectorAll(".svg-icon")) {
+    for (let e of document.querySelectorAll(".s-topbar--content .svg-icon")) {
         e.style.color = "#a1a6ae"
     }
-    for (let e of document.querySelectorAll(".s-activity-indicator")) {
+    for (let e of document.querySelectorAll(".s-topbar--content .s-activity-indicator")) {
         e.style.borderRadius = "4px"
         e.style.boxShadow = "none"
         e.style.right = "4px"
