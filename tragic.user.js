@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  A hacky file-transfer protocol over Stack Exchange chat. Don't try this at home!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -102,22 +102,25 @@
             .then((data) => Promise.all(data.events.map(handleEvent).filter((r) => r != null)))
     }
 
-    console.log("Tragic Wormhole is loading...")
-    if (document.getElementById("transcript-body") == null) {
-        injectUploadButton()
-        injectHook()
-        processOldMessages().then((_) => {
-            document.getElementById("tragic-upload").disabled = false
-            document.getElementById("tragic-label").classList.remove("disabled")
-            document.querySelector("#tragic-label span").innerText = "Tragic Wormhole"
-            console.log("Ready!")
-        })
+    function main() {
+        console.log("Tragic Wormhole is loading...")
+        if (document.getElementById("transcript-body") == null) {
+            injectUploadButton()
+            injectHook()
+            processOldMessages().then((_) => {
+                document.getElementById("tragic-upload").disabled = false
+                document.getElementById("tragic-label").classList.remove("disabled")
+                document.querySelector("#tragic-label span").innerText = "Tragic Wormhole"
+                console.log("Ready!")
+            })
+        }
+        else {
+            console.log("This is a transcript page, skipping injection.")
+            CHAT.CURRENT_ROOM_ID = new URL(document.URL).pathname.split("/")[2]
+            processOldMessages().then((_) => console.log("Ready!"))
+        }
     }
-    else {
-        console.log("This is a transcript page, skipping injection.")
-        CHAT.CURRENT_ROOM_ID = new URL(document.URL).pathname.split("/")[2]
-        processOldMessages().then((_) => console.log("Ready!"))
-    }
-    
+    document.addEventListener("load", main)
+
     
 })()
