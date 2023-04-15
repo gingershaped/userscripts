@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.2
 // @description  A hacky file-transfer protocol over Stack Exchange chat. Don't try this at home!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -13,6 +13,8 @@
     var decode = (string) => string.split("").map(c => c.charCodeAt(0).toString(2).padStart(16, 0).slice(2)).join("").replace(/10+$/, "").match(/.{8}/g).map(x => parseInt(x, 2))
     var encode = (bytes) => (bytes.map(b => b.toString(2).padStart(8, 0)).join("") + "10000000000000").match(/.{14}/g).map(x => String.fromCharCode(parseInt(x, 2) + 0x8000)).join("")
 
+    const CHAT = unsafeWindow?.CHAT ?? window.CHAT
+    
     function fkey() {
         return document.getElementById("fkey").value
     }
@@ -120,7 +122,7 @@
             processOldMessages().then((_) => console.log("Ready!"))
         }
     }
-    document.addEventListener("load", main)
-
+    
+    main()
     
 })()
