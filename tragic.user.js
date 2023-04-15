@@ -6,7 +6,7 @@
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
 // @match        https://chat.stackexchange.com/transcript/*
-// @grant        none
+// @grant        GM.getValue
 // ==/UserScript==
 
 (() => {
