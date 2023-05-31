@@ -8,15 +8,19 @@
     
 }
 .js-voting-container button.bar-pill.fc-black-700 {
-    color: var(--black-400) !important;
+    color: var(#babfc4) !important;
 }
 .js-voting-container button.bar-pill svg {
     width: 40px;
     height: 40px;
 }
+.js-voting-container {
+    --fs-subheading: 1.61538462rem;
+}
 
 .js-voting-container .js-vote-count {
     color: var(--black-600) !important;
+    font-weight: unset !important;
     margin: 0;
 }
 }
