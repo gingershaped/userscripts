@@ -9,7 +9,7 @@
 }
 .js-voting-container button.bar-pill.fc-black-700 {
     color: var(#babfc4) !important;
-    opacity: .30;
+    opacity: .30 !important;
 }
 .js-voting-container button.bar-pill svg {
     width: 40px;
