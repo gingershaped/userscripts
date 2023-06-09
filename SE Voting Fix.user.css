@@ -1,27 +1,39 @@
-@-moz-document url-prefix("https://stackoverflow.com"), url-prefix("https://superuser.com"), url-prefix("https://askubuntu.com"), regexp("https://.*\\.stackexchange\\.com/.*") {
+@-moz-document regexp(".*(stackoverflow|askubuntu|serverfault|stackapps|stackexchange|superuser)\\.com.*") {
+/* Fix voting buttons */
+.js-voting-container {
+    --fs-subheading: 1.61538462rem;
+    --voting-arrowsize: 34px;
+    --correctColor: #babfc4;
+}
+
 .js-voting-container button.bar-pill {
     padding: 0px;
     border: none !important;
     border-radius: 5px !important;
     background-color: var(--_bu-bg) !important;
     margin: 0;
-    
 }
+
 .js-voting-container button.bar-pill.fc-black-700 {
-    color: var(#babfc4) !important;
-    opacity: .30 !important;
+    color: var(--correctColor) !important;
 }
+
+.js-voting-container button.bar-pill.fc-white {
+    color: var(--_bu-fc) !important;
+}
+
 .js-voting-container button.bar-pill svg {
-    width: 40px;
-    height: 40px;
-}
-.js-voting-container {
-    --fs-subheading: 1.61538462rem;
+    width: var(--voting-arrowsize);
+    height: var(--voting-arrowsize);
 }
 
 .js-voting-container .js-vote-count {
-    color: var(--black-600) !important;
-    font-weight: unset !important;
+    color: var(--black-500) !important;
     margin: 0;
+    font-weight: unset !important;
+}
+
+.js-voting-container > div {
+    text-align: center;
 }
 }
