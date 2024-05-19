@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.1
+// @version      1.2
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -201,14 +201,17 @@
         }));
     }
 
-    const uploadButton = document.createElement("button");
-    uploadButton.innerText = "send file";
-    uploadButton.classList.add("button", "disabled");
-    uploadButton.addEventListener("click", () => {
-        window.showOpenFilePicker({ multiple: true })
-            .then((handles) => Promise.all(handles.map((handle) => handle.getFile())).then(upload))
-            .catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
+    const uploadLabel = document.createElement("label");
+    uploadLabel.appendChild(new Text("send file"));
+    uploadLabel.classList.add("button", "disabled");
+    const uploadInput = document.createElement("input");
+    uploadInput.type = "file";
+    uploadInput.multiple = true;
+    uploadInput.hidden = true;
+    uploadInput.addEventListener("change", () => {
+        upload([...uploadInput.files]).catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
     });
+    uploadLabel.appendChild(uploadInput);
 
     async function init() {
         await processTranscript();
@@ -226,14 +229,14 @@
                 }, 0);
             }
         });
-        uploadButton.classList.remove("disabled");
+        uploadLabel.classList.remove("disabled");
     }
 
     if (document.body.id == "transcript-body") {
         processTranscript();
     } else {
         if (document.getElementById("loading") != null) {
-            document.getElementById("chat-buttons").appendChild(uploadButton);
+            document.getElementById("chat-buttons").appendChild(uploadLabel);
             document.addEventListener("DOMContentLoaded", () => {
                 CHAT.Hub.roomReady.add(() => {
                     init();
