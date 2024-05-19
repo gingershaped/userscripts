@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.3
+// @version      1.4
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -116,12 +116,13 @@
         const uploadForm = new FormData();
         uploadForm.set("shadow-filename", "tragic2.png");
         uploadForm.set("filename", new Blob([data], { type: "image/png" }), "tragic2.png");
-        const uploadResponse = await (await fetch("/upload/image", { method: "POST", body: uploadForm })).text();
+        const uploadResponse = await fetch("/upload/image", { method: "POST", body: uploadForm });
         if (!uploadResponse.ok) {
             throw new Error("Failed to upload the image somehow!")
         }
-        const imageUrl = uploadResponse.match(/var result = '(.*)'/)[1];
-        const error = uploadResponse.match(/var error = (null|'(.*)')/)[1];
+        const uploadBody = await uploadResponse.text();
+        const imageUrl = uploadBody.match(/var result = '(.*)'/)[1];
+        const error = uploadBody.match(/var error = (null|'(.*)')/)[1];
         if (error != undefined) {
             throw new Error(error);
         }
