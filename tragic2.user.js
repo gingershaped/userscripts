@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.0
+// @version      1.1
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -232,8 +232,8 @@
     if (document.body.id == "transcript-body") {
         processTranscript();
     } else {
-        document.getElementById("chat-buttons").appendChild(uploadButton);
         if (document.getElementById("loading") != null) {
+            document.getElementById("chat-buttons").appendChild(uploadButton);
             document.addEventListener("DOMContentLoaded", () => {
                 CHAT.Hub.roomReady.add(() => {
                     init();
