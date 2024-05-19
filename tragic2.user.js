@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.2
+// @version      1.3
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -16,6 +16,7 @@
     const TYPE_SIZE = 4;
     const CRC_SIZE = 4;
     const FORMAT_VERSION = 1;
+    const MAX_FILE_SIZE = 2097152;
     const TW_CHUNK_TYPE = [0x77, 0x4F, 0x52, 0x6D]; // wORm
     const TW_CHUNK_TYPE_STR = String.fromCodePoint(...TW_CHUNK_TYPE);
 
@@ -94,6 +95,11 @@
 
 
     async function upload(files) {
+        for (const file of files) {
+            if (file.size > MAX_FILE_SIZE) {
+                throw new Error(`File ${file.name} is too big! Max size is approximately 2MiB`);
+            }
+        }
         const carrier = await generateCarrier(files.map((file) => file.name));
         const chunks = await Promise.all(files.map(async (file) => createTWChunk(file.name, file.type, [...new Uint8Array(await file.arrayBuffer())])));
         const data = new Uint8Array(carrier.byteLength + chunks.map((chunk) => chunk.byteLength).reduce((p, c) => p + c));
@@ -104,18 +110,31 @@
             cursor += chunk.byteLength;
         }
 
+        if (data.byteLength > MAX_FILE_SIZE) {
+            throw new Error(`Combined filesize is too big! Max size is approximately 2MiB`);
+        }
         const uploadForm = new FormData();
         uploadForm.set("shadow-filename", "tragic2.png");
         uploadForm.set("filename", new Blob([data], { type: "image/png" }), "tragic2.png");
-        const response = await (await fetch("/upload/image", { method: "POST", body: uploadForm })).text();
-        const imageUrl = response.match(/var result = '(.*)'/)[1];
+        const uploadResponse = await (await fetch("/upload/image", { method: "POST", body: uploadForm })).text();
+        if (!uploadResponse.ok) {
+            throw new Error("Failed to upload the image somehow!")
+        }
+        const imageUrl = uploadResponse.match(/var result = '(.*)'/)[1];
+        const error = uploadResponse.match(/var error = (null|'(.*)')/)[1];
+        if (error != undefined) {
+            throw new Error(error);
+        }
         const messageForm = new FormData();
         messageForm.set("text", imageUrl);
         messageForm.set("fkey", document.getElementById("fkey").value);
-        await fetch(`/chats/${CHAT.CURRENT_ROOM_ID}/messages/new`, {
+        const messageResponse = await fetch(`/chats/${CHAT.CURRENT_ROOM_ID}/messages/new`, {
             method: "POST",
             body: messageForm
         });
+        if (!messageResponse.ok) {
+            throw new Error("Failed to send the message!")
+        }
     }
 
     function extractFilesFromImage(imageBuffer) {
