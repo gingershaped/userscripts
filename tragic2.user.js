@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.4
+// @version      1.5
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -122,7 +122,7 @@
         }
         const uploadBody = await uploadResponse.text();
         const imageUrl = uploadBody.match(/var result = '(.*)'/)[1];
-        const error = uploadBody.match(/var error = (null|'(.*)')/)[1];
+        const error = uploadBody.match(/var error = (?:null|'(.*)')/)[1];
         if (error != undefined) {
             throw new Error(error);
         }
