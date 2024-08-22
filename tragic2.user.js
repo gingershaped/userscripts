@@ -264,10 +264,14 @@
             if (document.readyState != "complete") {
                 return;
             }
-            document.getElementById("chat-buttons").appendChild(uploadLabel);
-            CHAT.Hub.roomReady.add(() => {
-                init();
-            });
+            if (document.body.id == "transcript-body") {
+                processTranscript();
+            } else {
+                document.getElementById("chat-buttons").appendChild(uploadLabel);
+                CHAT.Hub.roomReady.add(() => {
+                    init();
+                });
+            }
         })
     }
 })();
