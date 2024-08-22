@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.5
+// @version      1.6
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -252,18 +252,22 @@
         uploadLabel.classList.remove("disabled");
     }
 
-    if (document.body.id == "transcript-body") {
-        processTranscript();
-    } else {
-        if (document.getElementById("loading") != null) {
-            document.getElementById("chat-buttons").appendChild(uploadLabel);
-            document.addEventListener("DOMContentLoaded", () => {
-                CHAT.Hub.roomReady.add(() => {
-                    init();
-                });
-            });
+    if (document.readyState == "complete") {
+        if (document.body.id == "transcript-body") {
+            processTranscript();
         } else {
+            document.getElementById("chat-buttons").appendChild(uploadLabel);
             init();
         }
+    } else {
+        document.addEventListener("readystatechange", () => {
+            if (document.readyState != "complete") {
+                return;
+            }
+            document.getElementById("chat-buttons").appendChild(uploadLabel);
+            CHAT.Hub.roomReady.add(() => {
+                init();
+            });
+        })
     }
 })();
