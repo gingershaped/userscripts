@@ -260,7 +260,7 @@
         }
         const userMonologuesBySite = new Map();
         await Promise.all([...userMonologues.entries()].map(async ([userId, monologues]) => {
-            if (BLACKLISTED.contains(userId)) {
+            if (BLACKLISTED.includes(userId)) {
                 return;
             }
             if (cachedPronouns.has(userId)) {
