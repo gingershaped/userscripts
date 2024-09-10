@@ -358,7 +358,7 @@
                 continue;
             }
             const userId = Number.parseInt(USER_URL_REGEX.exec(link.pathname)[1]);
-            if (userId < 1 || BLACKLISTED.includes(userId) {
+            if (userId < 1 || BLACKLISTED.includes(userId)) {
                 continue;
             }
             if (cachedPronouns.has(userId)) {
