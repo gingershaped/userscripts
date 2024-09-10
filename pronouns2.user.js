@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.0
+// @version     1.1
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
