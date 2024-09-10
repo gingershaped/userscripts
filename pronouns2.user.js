@@ -130,10 +130,7 @@
         }
     }
 
-    async function findPronouns(userId, bio) {
-        if (BLACKLISTED.includes(userId)) {
-            return null;
-        }
+    async function findPronouns(bio) {
         const explicitPronouns = explicitPronounsRegex.exec(bio);
         if (explicitPronouns != null) {
             return explicitPronouns[1];
@@ -233,7 +230,7 @@
                 .then((r) => { if (r.ok) return r.json(); else throw new Error("Failed to perform SE API query") })
                 .then(async ({ items, backoff }) => {
                     for (const user of items) {
-                        const pronouns = await findPronouns(user.user_id, user.about_me);
+                        const pronouns = await findPronouns(user.about_me);
                         if (pronouns != null) {
                             pronounsMap.set(user.user_id, [pronouns, user.display_name]);
                         }
@@ -263,6 +260,9 @@
         }
         const userMonologuesBySite = new Map();
         await Promise.all([...userMonologues.entries()].map(async ([userId, monologues]) => {
+            if (BLACKLISTED.contains(userId)) {
+                return;
+            }
             if (cachedPronouns.has(userId)) {
                 const pronouns = cachedPronouns.get(userId);
                 if (pronouns != null) {
@@ -273,7 +273,7 @@
                 }
             } else {
                 await fetch(`/users/thumbs/${userId}`).then((r) => r.json()).then(async (thumb) => {
-                    const pronouns = await findPronouns(thumb.id, thumb.user_message);
+                    const pronouns = await findPronouns(thumb.user_message);
                     if (pronouns != null) {
                         console.log(`Pronouns for ${thumb.name}: ${pronouns} (from chat bio)`);
                         cachedPronouns.set(userId, pronouns);
@@ -318,7 +318,7 @@
                         return;
                     }
                     const userId = extractUserIdFromMonologue(monologue);
-                    if (userId < 0) {
+                    if (userId < 0 || BLACKLISTED.includes(userId)) {
                         return;
                     }
                     if (cachedPronouns.has(userId)) {
@@ -328,14 +328,14 @@
                         }
                     } else {
                         const thumb = await fetch(`/users/thumbs/${userId}`).then((r) => r.json());
-                        const pronouns = await findPronouns(thumb.id, thumb.user_message);
+                        const pronouns = await findPronouns(thumb.user_message);
                         if (pronouns != null) {
                             cachedPronouns.set(userId, pronouns);
                             console.log(`Pronouns for ${thumb.name}: ${pronouns} (from chat bio)`);
                             createChatPronounsElement(monologue, pronouns);
                         } else {
                             const parentSiteId = extractParentSiteIdFromThumb(thumb);
-                            const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0]).then((bio) => bio != null ? findPronouns(thumb.id, bio) : null);
+                            const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0]).then((bio) => bio != null ? findPronouns(bio) : null);
                             if (pronouns != null) {
                                 cachedPronouns.set(userId, pronouns);
                                 console.log(`Pronouns for ${thumb.name}: ${pronouns} (from parent site)`);
@@ -358,7 +358,7 @@
                 continue;
             }
             const userId = Number.parseInt(USER_URL_REGEX.exec(link.pathname)[1]);
-            if (userId < 1) {
+            if (userId < 1 || BLACKLISTED.includes(userId) {
                 continue;
             }
             if (cachedPronouns.has(userId)) {
@@ -401,7 +401,7 @@
                                 continue;
                             }
                             const userId = Number.parseInt(USER_URL_REGEX.exec(link.pathname)[1]);
-                            if (userId < 1) {
+                            if (userId < 1 || BLACKLISTED.includes(userId)) {
                                 continue;
                             }
                             if (cachedPronouns.has(userId)) {
