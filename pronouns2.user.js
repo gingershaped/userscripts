@@ -335,7 +335,7 @@
                             createChatPronounsElement(monologue, pronouns);
                         } else {
                             const parentSiteId = extractParentSiteIdFromThumb(thumb);
-                            const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0]).then((bio) => bio != null ? findPronouns(bio) : null);
+                            const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0])
                             if (pronouns != null) {
                                 cachedPronouns.set(userId, pronouns);
                                 console.log(`Pronouns for ${thumb.name}: ${pronouns} (from parent site)`);
@@ -411,7 +411,7 @@
                                 }
                                 continue;
                             }
-                            const pronouns = await fetchQAPronouns(location.host, [userId]).then((m) => m.get(userId));
+                            const [pronouns, _] = await fetchQAPronouns(location.host, [userId]).then((m) => m.get(userId));
                             if (pronouns != null) {
                                 cachedPronouns.set(userId, pronouns);
                                 console.log(`Pronouns for ${userId}: ${cachedPronouns.get(userId)} (cached)`);
