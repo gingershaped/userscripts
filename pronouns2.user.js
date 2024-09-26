@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.3
+// @version     1.4
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
@@ -14,6 +14,7 @@
 // @match       *://chat.stackexchange.com/transcript/*
 // @match       *://chat.stackoverflow.com/transcript/*
 // @match       *://chat.meta.stackexchange.com/transcript/*
+// @match       *://chat.stackexchange.com/users/*?tab=prefs
 // @match       *://*.stackexchange.com/questions/*
 // @match       *://*.stackoverflow.com/questions/*
 // @match       *://*.superuser.com/questions/*
@@ -21,6 +22,7 @@
 // @match       *://*.askubuntu.com/questions/*
 // @match       *://*.stackapps.com/questions/*
 // @match       *://*.mathoverflow.net/questions/*
+// @match       *://*.stackexchange.com/users/preferences/*
 // @exclude     *://*.stackexchange.com/questions/ask
 // @exclude     *://*.stackoverflow.com/questions/ask
 // @exclude     *://*.superuser.com/questions/ask
@@ -288,7 +290,7 @@
                         userMonologuesBySite.get(thumb.host).set(userId, [parentSiteId, thumb.name, monologues]);
                     }
                 });
-                
+
             }
         }));
         await Promise.all([...userMonologuesBySite.entries()].map(async ([site, map]) => {
@@ -373,7 +375,7 @@
             }
             userElements.get(userId).push(element);
         }
-        
+
         const qaPronouns = await fetchQAPronouns(location.host, [...userElements.keys()]);
         for (const [userId, elements] of userElements.entries()) {
             if (qaPronouns.has(userId)) {
@@ -426,15 +428,41 @@
         }).observe(document.body, { childList: true, subtree: true });
     }
 
+    function insertCacheClearButton(chat) {
+        if (chat) {
+            document.getElementById("content").insertAdjacentHTML("beforeend", `
+                <p style="margin-top: 1em;">
+                    <button id="clear-pronouns-cache" class="button">clear pronouns cache</button>
+                </p>
+            `);
+        } else {
+            document.getElementById("mainbar").lastElementChild.insertAdjacentHTML("beforeend", `
+                <button id="clear-pronouns-cache" class="s-btn s-btn__outlined m16">clear pronouns cache</button>
+            `);
+        }
+        document.getElementById("clear-pronouns-cache").addEventListener("click", () => {
+            localStorage.removeItem(CACHED_PRONOUNS_LIST_KEY);
+            localStorage.removeItem(CACHED_PRONOUNS_KEY);
+            alert("Pronouns cache cleared for this site.");
+            window.location.assign("/");
+        });
+    }
+
     if (document.readyState == "complete") {
         if (location.host.startsWith("chat.")) {
-            if (document.body.id == "transcript-body") {
+            if (location.search == "?tab=prefs") {
+                insertCacheClearButton(true);
+            } else if (document.body.id == "transcript-body") {
                 processChatTranscript();
             } else {
                 chatInit();
             }
         } else {
-            qaInit();
+            if (/\/users\/preferences/.test(location.pathname)) {
+                insertCacheClearButton(false);
+            } else {
+                qaInit();
+            }
         }
     } else {
         document.addEventListener("readystatechange", () => {
@@ -442,7 +470,9 @@
                 return;
             }
             if (location.host.startsWith("chat.")) {
-                if (document.body.id == "transcript-body") {
+                if (location.search == "?tab=prefs") {
+                    insertCacheClearButton(true);
+                } else if (document.body.id == "transcript-body") {
                     processChatTranscript();
                 } else {
                     CHAT.Hub.roomReady.add(() => {
@@ -451,7 +481,11 @@
                 }
             } else {
                 StackExchange.initialized.then(() => {
-                    qaInit();
+                    if (/\/users\/preferences/.test(location.pathname)) {
+                        insertCacheClearButton(false);
+                    } else {
+                        qaInit();
+                    }
                 })
             }
         });
