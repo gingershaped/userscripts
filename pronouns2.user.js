@@ -15,6 +15,8 @@
 // @match       *://chat.stackoverflow.com/transcript/*
 // @match       *://chat.meta.stackexchange.com/transcript/*
 // @match       *://chat.stackexchange.com/users/*?tab=prefs
+// @match       *://chat.stackoverflow.com/users/*?tab=prefs
+// @match       *://chat.meta.stackexchange.com/users/*?tab=prefs
 // @match       *://*.stackexchange.com/questions/*
 // @match       *://*.stackoverflow.com/questions/*
 // @match       *://*.superuser.com/questions/*
@@ -23,6 +25,12 @@
 // @match       *://*.stackapps.com/questions/*
 // @match       *://*.mathoverflow.net/questions/*
 // @match       *://*.stackexchange.com/users/preferences/*
+// @match       *://*.stackoverflow.com/users/preferences/*
+// @match       *://*.superuser.com/users/preferences/*
+// @match       *://*.serverfault.com/users/preferences/*
+// @match       *://*.askubuntu.com/users/preferences/*
+// @match       *://*.stackapps.com/users/preferences/*
+// @match       *://*.mathoverflow.net/users/preferences/*
 // @exclude     *://*.stackexchange.com/questions/ask
 // @exclude     *://*.stackoverflow.com/questions/ask
 // @exclude     *://*.superuser.com/questions/ask
