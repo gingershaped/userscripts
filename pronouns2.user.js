@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.2
+// @version     1.3
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
@@ -132,7 +132,7 @@
 
     async function findPronouns(bio) {
         const explicitPronouns = explicitPronounsRegex.exec(bio);
-        if (explicitPronouns != null) {
+        if (explicitPronouns != null && explicitPronouns[1].length > 0) {
             return explicitPronouns[1];
         }
 
