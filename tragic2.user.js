@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.6
+// @version      1.7
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
@@ -164,6 +164,23 @@
         body.appendChild(header);
         const buttons = document.createElement("div");
         body.appendChild(buttons);
+        const video = document.createElement("video");
+        video.hidden = true;
+        video.controls = true;
+        video.loop = true;
+        video.style.width = "100%";
+        video.style.padding = "5px";
+        video.style.boxSizing = "border-box";
+        body.appendChild(video);
+        const hideVideo = document.createElement("button");
+        hideVideo.innerText = "Close player";
+        hideVideo.hidden = true;
+        hideVideo.classList.add("button");
+        hideVideo.addEventListener("click", () => {
+            video.hidden = true;
+            hideVideo.hidden = true; 
+        });
+        body.appendChild(document.createElement("div")).appendChild(hideVideo);
 
         files.forEach((file, index) => {
             switch (file.status) {
@@ -174,7 +191,20 @@
                     link.innerText = `Download ${file.file.name}`;
                     link.classList.add("button");
                     link.style.margin = index == 0 ? "0 5px 0 0" : "0 5px";
+                    link.style.textDecoration = "none";
                     buttons.appendChild(link);
+                    if (video.canPlayType(file.file.type) != "") {
+                        const playButton = document.createElement("button");
+                        playButton.innerText = `Play ${file.file.name}`;
+                        playButton.classList.add("button");
+                        playButton.addEventListener("click", () => {
+                            video.src = link.href;
+                            video.hidden = false;
+                            hideVideo.hidden = false;
+                            video.play();
+                        });
+                        buttons.appendChild(playButton);
+                    }
                     break;
                 }
                 case "bad-crc": {
