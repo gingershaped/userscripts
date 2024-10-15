@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.4
+// @version     1.5
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
@@ -110,11 +110,16 @@
 
     const cachedPronouns = new PronounCache();
 
+    const DEFAULT_PRONOUNS = [
+        { morphemes: {"pronoun_subject":"he","pronoun_object":"him","possessive_determiner":"his","possessive_pronoun":"his","reflexive":"himself"} },
+        { morphemes: {"pronoun_subject":"she","pronoun_object":"her","possessive_determiner":"her","possessive_pronoun":"hers","reflexive":"herself"} },
+        { morphemes: {"pronoun_subject":"they","pronoun_object":"them","possessive_determiner":"their","possessive_pronoun":"theirs","reflexive":"themself"} }
+    ];
     const pronouns = new Promise((resolve) => {
         const cachedPronounsList = JSON.parse(localStorage.getItem(CACHED_PRONOUNS_LIST_KEY) ?? "null");
         if (cachedPronounsList == null || (Date.now() - cachedPronounsList.cachedAt) / 1000 > CACHE_EXPIRY_SECS) {
             fetch("https://en.pronouns.page/api/pronouns").then((r) => r.json()).then(Object.values).then((data) => {
-                localStorage.setItem(CACHED_PRONOUNS_LIST_KEY, JSON.stringify({ cachedAt: Date.now(), data: data }));
+                localStorage.setItem(CACHED_PRONOUNS_LIST_KEY, JSON.stringify({ cachedAt: Date.now(), data }));
                 resolve(data);
             });
         } else {
@@ -122,7 +127,7 @@
         }
     })
     const pronounsListRegex = pronouns.then((data) => {
-        const parts = [...new Set(data.flatMap(({ morphemes }) => [morphemes.pronoun_subject, morphemes.pronoun_object]))].join("|");
+        const parts = [...new Set([data.flatMap(({ morphemes }) => [morphemes.pronoun_subject, morphemes.pronoun_object]), ...DEFAULT_PRONOUNS])].join("|");
         return new RegExp(String.raw`\b((${parts})(\s*/\s*(${parts}))+)\b`, "i");
     });
     const explicitPronounsRegex = /pronouns:\s*([^.\n)\]}<]*)(\.|\n|\)|]|}|<|$)/im;
