@@ -127,7 +127,7 @@
         }
     })
     const pronounsListRegex = pronouns.then((data) => {
-        const parts = [...new Set([data.flatMap(({ morphemes }) => [morphemes.pronoun_subject, morphemes.pronoun_object]), ...DEFAULT_PRONOUNS])].join("|");
+        const parts = [...new Set(data.concat(DEFAULT_PRONOUNS).flatMap(({ morphemes }) => [morphemes.pronoun_subject, morphemes.pronoun_object]))].join("|");
         return new RegExp(String.raw`\b((${parts})(\s*/\s*(${parts}))+)\b`, "i");
     });
     const explicitPronounsRegex = /pronouns:\s*([^.\n)\]}<]*)(\.|\n|\)|]|}|<|$)/im;
