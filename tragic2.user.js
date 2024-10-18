@@ -6,7 +6,7 @@
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
 // @match        https://chat.stackexchange.com/transcript/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=stackexchange.com
+// @icon         https://file.garden/ZkNlfx6KLQ_d2Rp0/wormhole.png
 // @grant        none
 // @run-at document-body
 // ==/UserScript==
@@ -164,23 +164,6 @@
         body.appendChild(header);
         const buttons = document.createElement("div");
         body.appendChild(buttons);
-        const video = document.createElement("video");
-        video.hidden = true;
-        video.controls = true;
-        video.loop = true;
-        video.style.width = "100%";
-        video.style.padding = "5px";
-        video.style.boxSizing = "border-box";
-        body.appendChild(video);
-        const hideVideo = document.createElement("button");
-        hideVideo.innerText = "Close player";
-        hideVideo.hidden = true;
-        hideVideo.classList.add("button");
-        hideVideo.addEventListener("click", () => {
-            video.hidden = true;
-            hideVideo.hidden = true; 
-        });
-        body.appendChild(document.createElement("div")).appendChild(hideVideo);
 
         files.forEach((file, index) => {
             switch (file.status) {
@@ -191,20 +174,7 @@
                     link.innerText = `Download ${file.file.name}`;
                     link.classList.add("button");
                     link.style.margin = index == 0 ? "0 5px 0 0" : "0 5px";
-                    link.style.textDecoration = "none";
                     buttons.appendChild(link);
-                    if (video.canPlayType(file.file.type) != "") {
-                        const playButton = document.createElement("button");
-                        playButton.innerText = `Play ${file.file.name}`;
-                        playButton.classList.add("button");
-                        playButton.addEventListener("click", () => {
-                            video.src = link.href;
-                            video.hidden = false;
-                            hideVideo.hidden = false;
-                            video.play();
-                        });
-                        buttons.appendChild(playButton);
-                    }
                     break;
                 }
                 case "bad-crc": {
@@ -265,20 +235,17 @@
 
     async function init() {
         await processTranscript();
-        CHAT.addEventHandlerHook((event) => {
-            if (event.event_type == 1 || event.event_type == 2) {
-                setTimeout(async () => {
-                    const messageElement = document.getElementById(`message-${event.message_id}`).querySelector(".content");
-                    const imageElement = messageElement.querySelector(".user-image");
-                    if (imageElement != null) {
-                        const newContent = await handleMessage(imageElement.parentElement.href);
-                        if (newContent != null) {
-                            messageElement.replaceChildren(newContent);
-                        }
+        new MutationObserver(async (mutations) => {
+            for (const monologue of mutations.flatMap((mutation) => [...mutation.addedNodes])) {
+                for (const imageElement of monologue.querySelectorAll(".user-image")) {                   
+                    const messageElement = imageElement.parentElement.parentElement.parentElement;
+                    const newContent = await handleMessage(imageElement.parentElement.href);
+                    if (newContent != null) {
+                        messageElement.replaceChildren(newContent);
                     }
-                }, 0);
+                }
             }
-        });
+        }).observe(document.getElementById("chat"), { childList: true });
         uploadLabel.classList.remove("disabled");
     }
 
