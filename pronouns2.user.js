@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.5
+// @version     1.6
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
@@ -325,44 +325,76 @@
 
     async function chatInit() {
         await processChatTranscript();
-        CHAT.addEventHandlerHook((event) => {
-            if (event.event_type == 1) {
-                setTimeout(async () => {
-                    const monologue = document.getElementById(`message-${event.message_id}`).parentElement.parentElement;
-                    if (monologue.querySelector(".pronouns")) {
-                        return;
+        // CHAT.addEventHandlerHook((event) => {
+        //     if (event.event_type == 1) {
+        //         setTimeout(async () => {
+        //             const monologue = document.getElementById(`message-${event.message_id}`).parentElement.parentElement;
+        //             if (monologue.querySelector(".pronouns")) {
+        //                 return;
+        //             }
+        //             const userId = extractUserIdFromMonologue(monologue);
+        //             if (userId < 0 || BLACKLISTED.includes(userId)) {
+        //                 return;
+        //             }
+        //             if (cachedPronouns.has(userId)) {
+        //                 if (cachedPronouns.get(userId) != null) {
+        //                     console.log(`Pronouns for ${userId}: ${cachedPronouns.get(userId)} (cached)`);
+        //                     createChatPronounsElement(monologue, cachedPronouns.get(userId));
+        //                 }
+        //             } else {
+        //                 const thumb = await fetch(`/users/thumbs/${userId}`).then((r) => r.json());
+        //                 const pronouns = await findPronouns(thumb.user_message);
+        //                 if (pronouns != null) {
+        //                     cachedPronouns.set(userId, pronouns);
+        //                     console.log(`Pronouns for ${thumb.name}: ${pronouns} (from chat bio)`);
+        //                     createChatPronounsElement(monologue, pronouns);
+        //                 } else {
+        //                     const parentSiteId = extractParentSiteIdFromThumb(thumb);
+        //                     const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0])
+        //                     if (pronouns != null) {
+        //                         cachedPronouns.set(userId, pronouns);
+        //                         console.log(`Pronouns for ${thumb.name}: ${pronouns} (from parent site)`);
+        //                         createChatPronounsElement(monologue, pronouns);
+        //                     } else {
+        //                         cachedPronouns.set(userId, null);
+        //                     }
+        //                 }
+        //             }
+        //         }, 0);
+        //     }
+        // });
+        new MutationObserver(async (mutations) => {
+            for (const monologue of mutations.flatMap((mutation) => [...mutation.addedNodes]).filter((node) => node.classList.contains("monologue"))) {
+                const userId = extractUserIdFromMonologue(monologue);
+                if (userId < 0 || BLACKLISTED.includes(userId)) {
+                    return;
+                }
+                if (cachedPronouns.has(userId)) {
+                    if (cachedPronouns.get(userId) != null) {
+                        console.log(`Pronouns for ${userId}: ${cachedPronouns.get(userId)} (cached)`);
+                        createChatPronounsElement(monologue, cachedPronouns.get(userId));
                     }
-                    const userId = extractUserIdFromMonologue(monologue);
-                    if (userId < 0 || BLACKLISTED.includes(userId)) {
-                        return;
-                    }
-                    if (cachedPronouns.has(userId)) {
-                        if (cachedPronouns.get(userId) != null) {
-                            console.log(`Pronouns for ${userId}: ${cachedPronouns.get(userId)} (cached)`);
-                            createChatPronounsElement(monologue, cachedPronouns.get(userId));
-                        }
+                } else {
+                    const thumb = await fetch(`/users/thumbs/${userId}`).then((r) => r.json());
+                    const pronouns = await findPronouns(thumb.user_message);
+                    if (pronouns != null) {
+                        cachedPronouns.set(userId, pronouns);
+                        console.log(`Pronouns for ${thumb.name}: ${pronouns} (from chat bio)`);
+                        createChatPronounsElement(monologue, pronouns);
                     } else {
-                        const thumb = await fetch(`/users/thumbs/${userId}`).then((r) => r.json());
-                        const pronouns = await findPronouns(thumb.user_message);
+                        const parentSiteId = extractParentSiteIdFromThumb(thumb);
+                        const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0])
                         if (pronouns != null) {
                             cachedPronouns.set(userId, pronouns);
-                            console.log(`Pronouns for ${thumb.name}: ${pronouns} (from chat bio)`);
+                            console.log(`Pronouns for ${thumb.name}: ${pronouns} (from parent site)`);
                             createChatPronounsElement(monologue, pronouns);
                         } else {
-                            const parentSiteId = extractParentSiteIdFromThumb(thumb);
-                            const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0])
-                            if (pronouns != null) {
-                                cachedPronouns.set(userId, pronouns);
-                                console.log(`Pronouns for ${thumb.name}: ${pronouns} (from parent site)`);
-                                createChatPronounsElement(monologue, pronouns);
-                            } else {
-                                cachedPronouns.set(userId, null);
-                            }
+                            cachedPronouns.set(userId, null);
                         }
                     }
-                }, 0);
+                }
             }
-        });
+        }).observe(document.getElementById("chat"), { childList: true });
     }
 
     async function qaInit() {
