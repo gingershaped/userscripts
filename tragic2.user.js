@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.7
+// @version      1.8
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
