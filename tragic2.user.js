@@ -1,11 +1,15 @@
 // ==UserScript==
 // @name         Tragic Wormhole 2
 // @namespace    http://ginger.rto.community/
-// @version      1.8
+// @version      1.9
 // @description  Send arbitrary files over SE chat!
 // @author       Ginger
 // @match        https://chat.stackexchange.com/rooms/*
 // @match        https://chat.stackexchange.com/transcript/*
+// @match        https://chat.stackoverflow.com/rooms/*
+// @match        https://chat.stackoverflow.com/transcript/*
+// @match        https://chat.meta.stackexchange.com/rooms/*
+// @match        https://chat.meta.stackexchange.com/transcript/*
 // @icon         https://file.garden/ZkNlfx6KLQ_d2Rp0/wormhole.png
 // @grant        none
 // @run-at document-body
