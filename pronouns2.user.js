@@ -63,6 +63,13 @@
     .pronouns a:hover {
         text-decoration: underline;
     }
+    .username.bot {
+        font-family: monospace;
+    }
+    .username.bot::before {
+        content: "⚙";
+        margin-right: 2px;
+    }
     `);
 
     const USER_URL_REGEX = /\/users\/(-?\d+)/;
@@ -74,6 +81,7 @@
     const BLACKLISTED = [
         578513, // The_AH
     ]
+    const BOT_MANIFEST = fetch("https://raw.githubusercontent.com/gingershaped/userscripts/main/bots.json").then((r) => r.json());
 
     class PronounCache {
         #map = new Map();
@@ -125,7 +133,7 @@
         } else {
             resolve(cachedPronounsList.data);
         }
-    })
+    });
     const pronounsListRegex = pronouns.then((data) => {
         const parts = [...new Set(data.concat(DEFAULT_PRONOUNS).flatMap(({ morphemes }) => [morphemes.pronoun_subject, morphemes.pronoun_object]))].join("|");
         return new RegExp(String.raw`\b((${parts})(\s*/\s*(${parts}))+)\b`, "i");
@@ -325,44 +333,6 @@
 
     async function chatInit() {
         await processChatTranscript();
-        // CHAT.addEventHandlerHook((event) => {
-        //     if (event.event_type == 1) {
-        //         setTimeout(async () => {
-        //             const monologue = document.getElementById(`message-${event.message_id}`).parentElement.parentElement;
-        //             if (monologue.querySelector(".pronouns")) {
-        //                 return;
-        //             }
-        //             const userId = extractUserIdFromMonologue(monologue);
-        //             if (userId < 0 || BLACKLISTED.includes(userId)) {
-        //                 return;
-        //             }
-        //             if (cachedPronouns.has(userId)) {
-        //                 if (cachedPronouns.get(userId) != null) {
-        //                     console.log(`Pronouns for ${userId}: ${cachedPronouns.get(userId)} (cached)`);
-        //                     createChatPronounsElement(monologue, cachedPronouns.get(userId));
-        //                 }
-        //             } else {
-        //                 const thumb = await fetch(`/users/thumbs/${userId}`).then((r) => r.json());
-        //                 const pronouns = await findPronouns(thumb.user_message);
-        //                 if (pronouns != null) {
-        //                     cachedPronouns.set(userId, pronouns);
-        //                     console.log(`Pronouns for ${thumb.name}: ${pronouns} (from chat bio)`);
-        //                     createChatPronounsElement(monologue, pronouns);
-        //                 } else {
-        //                     const parentSiteId = extractParentSiteIdFromThumb(thumb);
-        //                     const pronouns = await fetchQAPronouns(thumb.host, [parentSiteId]).then((map) => map.get(parentSiteId)?.[0])
-        //                     if (pronouns != null) {
-        //                         cachedPronouns.set(userId, pronouns);
-        //                         console.log(`Pronouns for ${thumb.name}: ${pronouns} (from parent site)`);
-        //                         createChatPronounsElement(monologue, pronouns);
-        //                     } else {
-        //                         cachedPronouns.set(userId, null);
-        //                     }
-        //                 }
-        //             }
-        //         }, 0);
-        //     }
-        // });
         new MutationObserver(async (mutations) => {
             for (const monologue of mutations.flatMap((mutation) => [...mutation.addedNodes]).filter((node) => node.classList.contains("monologue"))) {
                 const userId = extractUserIdFromMonologue(monologue);
