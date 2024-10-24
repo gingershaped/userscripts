@@ -1,18 +1,21 @@
 // ==UserScript==
-// @name         Tragic Wormhole 2
-// @namespace    http://ginger.rto.community/
-// @version      1.9
-// @description  Send arbitrary files over SE chat!
-// @author       Ginger
-// @match        https://chat.stackexchange.com/rooms/*
-// @match        https://chat.stackexchange.com/transcript/*
-// @match        https://chat.stackoverflow.com/rooms/*
-// @match        https://chat.stackoverflow.com/transcript/*
-// @match        https://chat.meta.stackexchange.com/rooms/*
-// @match        https://chat.meta.stackexchange.com/transcript/*
-// @icon         https://file.garden/ZkNlfx6KLQ_d2Rp0/wormhole.png
-// @grant        none
-// @run-at document-body
+// @name              Tragic Wormhole 2
+// @namespace         http://ginger.rto.community/
+// @version           1.10
+// @description       Send arbitrary files over SE chat!
+// @author            Ginger
+// @match             https://chat.stackexchange.com/rooms/*
+// @match             https://chat.stackexchange.com/transcript/*
+// @match             https://chat.stackoverflow.com/rooms/*
+// @match             https://chat.stackoverflow.com/transcript/*
+// @match             https://chat.meta.stackexchange.com/rooms/*
+// @match             https://chat.meta.stackexchange.com/transcript/*
+// @match             https://i.sstatic.net/*.png
+// @icon              https://file.garden/ZkNlfx6KLQ_d2Rp0/wormhole.png
+// @resource style    https://cdn-chat.sstatic.net/chat/css/chat.stackexchange.com.css?v=62c10027e0ed
+// @resource bg       https://cdn.sstatic.net/Sites/beta/img/bg-noise.png
+// @grant             GM_getResourceURL
+// @run-at            document-body
 // ==/UserScript==
 
 (() => {
@@ -255,18 +258,6 @@
         }));
     }
 
-    const uploadLabel = document.createElement("label");
-    uploadLabel.appendChild(new Text("send file"));
-    uploadLabel.classList.add("button", "disabled");
-    const uploadInput = document.createElement("input");
-    uploadInput.type = "file";
-    uploadInput.multiple = true;
-    uploadInput.hidden = true;
-    uploadInput.addEventListener("change", () => {
-        upload([...uploadInput.files]).catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
-    });
-    uploadLabel.appendChild(uploadInput);
-
     async function init() {
         await processTranscript();
         new MutationObserver(async (mutations) => {
@@ -280,29 +271,64 @@
                 }
             }
         }).observe(document.getElementById("chat"), { childList: true });
-        uploadLabel.classList.remove("disabled");
     }
 
-    if (document.readyState == "complete") {
-        if (document.body.id == "transcript-body") {
-            processTranscript();
-        } else {
-            document.getElementById("chat-buttons").appendChild(uploadLabel);
-            init();
+    async function sstaticInit() {
+        const element = await handleMessage(window.location.toString());
+        if (element != null) {
+            element.style.position = "absolute";
+            element.style.top = "50%";
+            element.style.left = "50%";
+            element.style.transform = "translate(-50%, -50%)";
+            element.style.boxShadow = "0 1px 15px #9c9c9c";
+            element.style.background = "white";
+            element.style.padding = "2%";
+            const stylesheet = document.createElement("link");
+            stylesheet.rel = "stylesheet";
+            await GM_getResourceURL("bg");
+            stylesheet.href = await GM_getResourceURL("style");
+            document.head.appendChild(stylesheet)
+            document.body.replaceChildren(element);
         }
+    }
+
+    if (window.location.host == "i.sstatic.net") {
+        sstaticInit();
     } else {
-        document.addEventListener("readystatechange", () => {
-            if (document.readyState != "complete") {
-                return;
-            }
+        const uploadLabel = document.createElement("label");
+        uploadLabel.appendChild(new Text("send file"));
+        uploadLabel.classList.add("button", "disabled");
+        const uploadInput = document.createElement("input");
+        uploadInput.type = "file";
+        uploadInput.multiple = true;
+        uploadInput.hidden = true;
+        uploadInput.addEventListener("change", () => {
+            upload([...uploadInput.files]).catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
+        });
+        uploadLabel.appendChild(uploadInput);
+        if (document.readyState == "complete") {
             if (document.body.id == "transcript-body") {
                 processTranscript();
             } else {
+                uploadLabel.classList.remove("disabled");
                 document.getElementById("chat-buttons").appendChild(uploadLabel);
-                CHAT.Hub.roomReady.add(() => {
-                    init();
-                });
+                init();
             }
-        })
+        } else {
+            document.addEventListener("readystatechange", () => {
+                if (document.readyState != "complete") {
+                    return;
+                }
+                if (document.body.id == "transcript-body") {
+                    processTranscript();
+                } else {
+                    document.getElementById("chat-buttons").appendChild(uploadLabel);
+                    CHAT.Hub.roomReady.add(() => {
+                        init();
+                        uploadLabel.classList.remove("disabled");
+                    });
+                }
+            })
+        }
     }
 })();
