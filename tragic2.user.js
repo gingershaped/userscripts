@@ -4,6 +4,8 @@
 // @version           1.10
 // @description       Send arbitrary files over SE chat!
 // @author            Ginger
+// @updateURL         https://github.com/gingershaped/userscripts/raw/main/tragic2.user.js
+// @downloadURL       https://github.com/gingershaped/userscripts/raw/main/tragic2.user.js
 // @match             https://chat.stackexchange.com/rooms/*
 // @match             https://chat.stackexchange.com/transcript/*
 // @match             https://chat.stackoverflow.com/rooms/*
