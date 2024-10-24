@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.6
+// @version     1.7
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
@@ -80,6 +80,7 @@
     const CACHE_VERSION = 1;
     const BLACKLISTED = [
         578513, // The_AH
+        540406, // The Empty String Photographer
     ]
     const BOT_MANIFEST = fetch("https://raw.githubusercontent.com/gingershaped/userscripts/main/bots.json").then((r) => r.json());
 
