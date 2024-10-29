@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              Tragic Wormhole 2
 // @namespace         http://ginger.rto.community/
-// @version           1.10
+// @version           1.11
 // @description       Send arbitrary files over SE chat!
 // @author            Ginger
 // @match             https://chat.stackexchange.com/rooms/*
@@ -89,8 +89,8 @@
         return canvas.convertToBlob().then((blob) => blob.arrayBuffer()).then((buf) => new Uint8Array(buf));
     }
 
-    function createTWChunk(name, type, data) {
-        const fileMeta = { version: FORMAT_VERSION, name, type };
+    function createTWChunk(meta, data) {
+        const fileMeta = { version: FORMAT_VERSION, ...meta };
         const payload = [...new TextEncoder().encode(JSON.stringify(fileMeta)), 0, ...data];
         const crc = crc32(TW_CHUNK_TYPE.concat(payload));
         const view = new DataView(new ArrayBuffer(LENGTH_SIZE + TYPE_SIZE + payload.length + CRC_SIZE));
@@ -108,7 +108,9 @@
             }
         }
         const carrier = await generateCarrier(files.map((file) => file.name));
-        const chunks = await Promise.all(files.map(async (file) => createTWChunk(file.name, file.type, [...new Uint8Array(await file.arrayBuffer())])));
+        const chunks = await Promise.all(files.map(async (file) => createTWChunk(
+            { name: file.name, type: file.type, modified: file.lastModified }, [...new Uint8Array(await file.arrayBuffer())]
+        )));
         const data = new Uint8Array(carrier.byteLength + chunks.map((chunk) => chunk.byteLength).reduce((p, c) => p + c));
         data.set(carrier, 0);
         let cursor = carrier.byteLength;
@@ -158,7 +160,13 @@
                 if (metadata.version != FORMAT_VERSION) {
                     return { status: "bad-version", version: metadata.version, chunk };
                 }
-                return { status: "okay", file: new File([chunkBuffer.slice(chunkBuffer.indexOf(0) + 1)], metadata.name, { type: metadata.type }) };
+                return {
+                    status: "okay", file: new File(
+                        [chunkBuffer.slice(chunkBuffer.indexOf(0) + 1)],
+                        metadata.name,
+                        { type: metadata.type, lastModified: metadata.lastModified }
+                    )
+                };
             });
     }
 
@@ -185,7 +193,7 @@
         hideVideo.classList.add("button");
         hideVideo.addEventListener("click", () => {
             video.hidden = true;
-            hideVideo.hidden = true; 
+            hideVideo.hidden = true;
         });
         body.appendChild(document.createElement("div")).appendChild(hideVideo);
 
@@ -262,7 +270,7 @@
         await processTranscript();
         new MutationObserver(async (mutations) => {
             for (const monologue of mutations.flatMap((mutation) => [...mutation.addedNodes])) {
-                for (const imageElement of monologue.querySelectorAll(".user-image")) {                   
+                for (const imageElement of monologue.querySelectorAll(".user-image")) {
                     const messageElement = imageElement.parentElement.parentElement.parentElement;
                     const newContent = await handleMessage(imageElement.parentElement.href);
                     if (newContent != null) {
