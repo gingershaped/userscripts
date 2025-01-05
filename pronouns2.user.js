@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.7
+// @version     1.8
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
@@ -140,7 +140,7 @@
         return new RegExp(String.raw`\b((${parts})(\s*/\s*(${parts}))+)\b`, "i");
     });
     const explicitPronounsRegex = /pronouns:\s*([^.\n)\]}<]*)(\.|\n|\)|]|}|<|$)/im;
-    const pronounsSiteRegex = /https?:\/\/(((..\.)?(?<site>pronouns\.page))|(?<site>pronouns\.cc))\/@(?<user>\w+)/i;
+    const pronounsSiteRegex = /https?:\/\/(?<site>en\.pronouns\.page|pronouns.cc)\/@(?<user>\w+)/i;
     const pronounIslandRegex = /https?:\/\/((my\.)?pronoun\.is|pronouns\.alysbrooks\.com)\/(?<pronouns>[\w/]+)/i;
 
     function clearCaches(event) {
@@ -164,7 +164,7 @@
         if (pronounsSiteLink != null) {
             const { site, user } = pronounsSiteLink.groups;
             let fullPronouns;
-            if (site == "pronouns.page") {
+            if (site == "en.pronouns.page") {
                 fullPronouns = await fetch(`https://en.pronouns.page/api/profile/get/${user}?version=2&props=pronouns`)
                     .then((r) => r.json())
                     .then(({ profiles }) => profiles.en?.pronouns?.find(({ opinion }) => opinion == "yes")?.value);
