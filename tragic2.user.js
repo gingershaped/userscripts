@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              Tragic Wormhole 2
 // @namespace         http://ginger.rto.community/
-// @version           1.11
+// @version           1.12
 // @description       Send arbitrary files over SE chat!
 // @author            Ginger
 // @updateURL         https://github.com/gingershaped/userscripts/raw/main/tragic2.user.js
@@ -307,7 +307,7 @@
     } else {
         const uploadLabel = document.createElement("label");
         uploadLabel.appendChild(new Text("send file"));
-        uploadLabel.classList.add("button", "disabled");
+        uploadLabel.classList.add("button");
         const uploadInput = document.createElement("input");
         uploadInput.type = "file";
         uploadInput.multiple = true;
@@ -320,7 +320,6 @@
             if (document.body.id == "transcript-body") {
                 processTranscript();
             } else {
-                uploadLabel.classList.remove("disabled");
                 document.getElementById("chat-buttons").appendChild(uploadLabel);
                 init();
             }
@@ -335,7 +334,6 @@
                     document.getElementById("chat-buttons").appendChild(uploadLabel);
                     CHAT.Hub.roomReady.add(() => {
                         init();
-                        uploadLabel.classList.remove("disabled");
                     });
                 }
             })
