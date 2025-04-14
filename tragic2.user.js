@@ -303,24 +303,24 @@
     }
 
     async function chatInit() {
-        if (document.getElementById("sayit-button") !== null) {
-            const uploadLabel = document.createElement("label");
-            uploadLabel.appendChild(new Text("send file"));
-            uploadLabel.classList.add("button");
-            const uploadInput = document.createElement("input");
-            uploadInput.type = "file";
-            uploadInput.multiple = true;
-            uploadInput.hidden = true;
-            uploadInput.addEventListener("change", () => {
-                upload([...uploadInput.files]).catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
-            });
-            uploadLabel.appendChild(uploadInput);
-        }
+        const uploadLabel = document.createElement("label");
+        uploadLabel.appendChild(new Text("send file"));
+        uploadLabel.classList.add("button");
+        const uploadInput = document.createElement("input");
+        uploadInput.type = "file";
+        uploadInput.multiple = true;
+        uploadInput.hidden = true;
+        uploadInput.addEventListener("change", () => {
+            upload([...uploadInput.files]).catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
+        });
+        uploadLabel.appendChild(uploadInput);
         if (document.readyState == "complete") {
             if (document.body.id == "transcript-body") {
                 processTranscript();
             } else {
-                document.getElementById("chat-buttons").appendChild(uploadLabel);
+                if (document.getElementById("sayit-button") !== null) {
+                    document.getElementById("chat-buttons").appendChild(uploadLabel);
+                }
                 init();
             }
         } else {
@@ -331,7 +331,9 @@
                 if (document.body.id == "transcript-body") {
                     processTranscript();
                 } else {
-                    document.getElementById("chat-buttons").appendChild(uploadLabel);
+                    if (document.getElementById("sayit-button") !== null) {
+                        document.getElementById("chat-buttons").appendChild(uploadLabel);
+                    }
                     CHAT.Hub.roomReady.add(() => {
                         init();
                     });
