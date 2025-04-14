@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              Tragic Wormhole 2
 // @namespace         http://ginger.rto.community/
-// @version           1.12
+// @version           1.13
 // @description       Send arbitrary files over SE chat!
 // @author            Ginger
 // @updateURL         https://github.com/gingershaped/userscripts/raw/main/tragic2.user.js
@@ -302,20 +302,20 @@
         }
     }
 
-    if (window.location.host == "i.sstatic.net") {
-        sstaticInit();
-    } else {
-        const uploadLabel = document.createElement("label");
-        uploadLabel.appendChild(new Text("send file"));
-        uploadLabel.classList.add("button");
-        const uploadInput = document.createElement("input");
-        uploadInput.type = "file";
-        uploadInput.multiple = true;
-        uploadInput.hidden = true;
-        uploadInput.addEventListener("change", () => {
-            upload([...uploadInput.files]).catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
-        });
-        uploadLabel.appendChild(uploadInput);
+    async function chatInit() {
+        if (document.getElementById("sayit-button") !== null) {
+            const uploadLabel = document.createElement("label");
+            uploadLabel.appendChild(new Text("send file"));
+            uploadLabel.classList.add("button");
+            const uploadInput = document.createElement("input");
+            uploadInput.type = "file";
+            uploadInput.multiple = true;
+            uploadInput.hidden = true;
+            uploadInput.addEventListener("change", () => {
+                upload([...uploadInput.files]).catch((reason) => Notifier().notify(`Failed to send files: ${reason}`));
+            });
+            uploadLabel.appendChild(uploadInput);
+        }
         if (document.readyState == "complete") {
             if (document.body.id == "transcript-body") {
                 processTranscript();
@@ -338,5 +338,12 @@
                 }
             })
         }
+    }
+        
+
+    if (window.location.host == "i.sstatic.net") {
+        sstaticInit();
+    } else {
+        chatInit();
     }
 })();
