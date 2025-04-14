@@ -5,7 +5,7 @@
 // @author      Ginger
 // @author      Glorfindel
 // @author      ArtOfCode
-// @version     1.8
+// @version     1.9
 // @updateURL   https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @downloadURL https://github.com/gingershaped/userscripts/raw/main/pronouns2.user.js
 // @match       *://chat.stackexchange.com/rooms/*
@@ -127,7 +127,7 @@
     const pronouns = new Promise((resolve) => {
         const cachedPronounsList = JSON.parse(localStorage.getItem(CACHED_PRONOUNS_LIST_KEY) ?? "null");
         if (cachedPronounsList == null || (Date.now() - cachedPronounsList.cachedAt) / 1000 > CACHE_EXPIRY_SECS) {
-            fetch("https://en.pronouns.page/api/pronouns").then((r) => r.json()).then(Object.values).then((data) => {
+            fetch("https://files.ginger.services/mirror/pronouns.json").then((r) => r.json()).then(Object.values).then((data) => {
                 localStorage.setItem(CACHED_PRONOUNS_LIST_KEY, JSON.stringify({ cachedAt: Date.now(), data }));
                 resolve(data);
             });
