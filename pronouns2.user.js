@@ -82,7 +82,6 @@
         578513, // The_AH
         540406, // The Empty String Photographer
     ]
-    const BOT_MANIFEST = fetch("https://raw.githubusercontent.com/gingershaped/userscripts/main/bots.json").then((r) => r.json());
 
     class PronounCache {
         #map = new Map();
