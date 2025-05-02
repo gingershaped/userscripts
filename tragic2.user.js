@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              Tragic Wormhole 2
 // @namespace         http://ginger.rto.community/
-// @version           1.13
+// @version           1.14
 // @description       Send arbitrary files over SE chat!
 // @author            Ginger
 // @updateURL         https://github.com/gingershaped/userscripts/raw/main/tragic2.user.js
@@ -13,7 +13,7 @@
 // @match             https://chat.meta.stackexchange.com/rooms/*
 // @match             https://chat.meta.stackexchange.com/transcript/*
 // @match             https://i.sstatic.net/*.png
-// @icon              https://file.garden/ZkNlfx6KLQ_d2Rp0/wormhole.png
+// @icon              https://files.ginger.services/users/ginger/static/wormhole.png
 // @resource style    https://cdn-chat.sstatic.net/chat/css/chat.stackexchange.com.css?v=62c10027e0ed
 // @resource bg       https://cdn.sstatic.net/Sites/beta/img/bg-noise.png
 // @grant             GM_getResourceURL
@@ -21,6 +21,7 @@
 // ==/UserScript==
 
 (() => {
+    const SE_IMAGE_HOST = "i.sstatic.net"
     const LENGTH_SIZE = 4;
     const TYPE_SIZE = 4;
     const CRC_SIZE = 4;
@@ -242,6 +243,9 @@
     }
 
     async function handleMessage(imageUrl) {
+        if (new URL(imageUrl).hostname !== SE_IMAGE_HOST) {
+            return null;
+        }
         try {
             const response = await fetch(imageUrl);
             if (!response.ok) {
