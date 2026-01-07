@@ -15,7 +15,7 @@
 // @match             https://i.sstatic.net/*.png
 // @icon              https://files.ginger.services/users/ginger/static/wormhole.png
 // @resource style    https://cdn-chat.sstatic.net/chat/css/chat.stackexchange.com.css?v=62c10027e0ed
-// @resource bg       https://cdn.sstatic.net/Sites/beta/img/bg-noise.png
+// @resource bg       https://web.archive.org/web/20230305080931if_/https://cdn.sstatic.net/Sites/beta/img/bg-noise.png
 // @grant             GM_getResourceURL
 // @run-at            document-body
 // ==/UserScript==
